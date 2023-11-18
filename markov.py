@@ -60,23 +60,26 @@ dense_chain = [[[0 for _ in range(num_char+1)] for _ in range(max_len)] for _ in
 for first in range(num_char+1):
     for n in range(max_len):
         char_is = sorted(range(num_char+1), key=lambda k: chain[first][n][k], reverse=True)
-        dense_chain[first][n] = "".join([i_to_char(i) for i in char_is][:4])
+        chars = [i_to_char(i) for i in char_is][:6]
+
+        while len(chars) < 6:
+            chars.append("e")
+        
+        dense_chain[first][n] = "".join(chars)
 
 # for _ in range(10):
-    # print(generate(dense_chain))
+  # print(generate(dense_chain))
 
 # print markov as C array initializer
-# print(f"const char* chain[{num_char+1}][{max_len}] = ", end="")
+print(f"const char* chain[{num_char+1}][{max_len}] = ", end="")
 
-# print("{", end="")
+print("{", end="")
 
-# for i in range(num_char+1):
-    # print("{", end="")
-    # for j in range(max_len):
-        # print(repr(f'"{dense_chain[i][j]}"'), end=", ")
-    # print("}, ", end="")
+for i in range(num_char+1):
+    print("{", end="")
+    for j in range(max_len):
+        s = dense_chain[i][j].replace("\x00", "|")
+        print(f'"{s}"', end=", ")
+    print("}, ", end="")
 
-# print("}")
-
-print(min_char)
-print(num_char)
+print("}")
