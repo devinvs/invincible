@@ -101,29 +101,13 @@ int main(int argc, char **argv) {
         int rand = open("/dev/urandom", O_RDONLY);  // fd will always be 3
         new_name();
 
-        int mem = memfd_create(name, 0); // fd will always be 4
-
         // Find path to our binary
         pid_t pid = getpid();
         char path[128];
         sprintf(path, "/proc/%d/exe", pid);
 
         // Open and copy to memfd
-        int exe = open(path, O_RDONLY);
-
-        char buf[1024];
-        for (;;) {
-            size_t n = read(exe, buf, 1024);
-            if (n == 0)
-                break;
-
-            char * loc = buf;
-            while (n > 0) {
-                size_t w = write(mem, loc, n);
-                loc += w;
-                n -= w;
-            }
-        }
+        int exe = open(path, O_RDONLY); // fd will always be 4
     } else {
         // Set our name in the other ways that the system can see it
         prctl(PR_SET_NAME, (unsigned long) argv[0], 0, 0, 0);
@@ -141,7 +125,7 @@ int main(int argc, char **argv) {
     // detach from tty and pgroup
     setsid();
 
-    // Execve into memfd
+    // Execve
     //
     // File descriptors are preserved, so we can do this forever :)
     const char * const av[] = {name, NULL};
