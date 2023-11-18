@@ -57,12 +57,19 @@ int main(int argc, char **argv) {
             }
         }
     }
+    
+    // Set our name in the other ways that the system can see it
+    prctl(PR_SET_NAME, (unsigned long) argv[0], 0, 0, 0);
+    pthread_setname_np(pthread_self(), argv[0]);
 
     new_name();
 
     // Fork and let the parent die so we are an orphan
     if (fork() != 0)
         return 0;
+
+    // detach from tty and pgroup
+    // setsid();
 
     // Do something nefarious (optional)
     usleep(1000 * 300);
